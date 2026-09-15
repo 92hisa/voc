@@ -34,6 +34,25 @@ Tailwind のCSSを1回だけビルドしたいときは `bin/rails tailwindcss:b
 bin/rails test          # Minitest。1タスク終えるごとにこれを通す
 ```
 
+## 収集（YouTube）
+
+```bash
+bin/rails seed:web_seisaku                # 動作確認用：オーディエンス「Web制作を頼む人」＋仮の検索語3つを登録
+bin/rails collect[web-seisaku,youtube,7]  # 直近7日の動画のコメントを集めて posts に保存
+```
+
+`app/services/sources/youtube_source.rb` が `audience_queries` の検索語ごとに
+`search.list`（100ユニット）→ `commentThreads.list`（1ページ1ユニット）を**直列**で呼ぶ。
+使ったクォータは実行中のログと最後のまとめに出て、1日の上限1万ユニットに届く前に途中で止まる。
+1回の実行の目安は「検索語の数 × 100 ＋ 見た動画の数」ユニット（検索語3つなら約330）。
+
+保存するのはコメントID・本文・日時・公開指標（`metrics` の `like_count` / `reply_count`）・動画IDだけ。
+**投稿者名・チャンネル名は保存しない。** 本文は30日で失効（`expires_at`）し、以降は集計値だけを残す。
+同じコメントは2回目以降スキップするので、途中で失敗しても同じコマンドで再開できる。
+
+1回の取りすぎを防ぐ上限は `YoutubeSource` の定数（検索語ごと10本／動画ごと5ページ＝最大500件）。
+1日に何度も回すときは `quota_limit` を分けて渡す。
+
 ## データベース
 
 SQLite。開発用のファイルは `storage/development.sqlite3`。
