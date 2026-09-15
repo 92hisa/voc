@@ -94,7 +94,7 @@ module Sources
       return [] unless spend_quota(SEARCH_COST, "search.list q=#{query}")
 
       response = @client.list_searches(
-        "id",
+        "id,snippet",
         q: query,
         type: "video",
         relevance_language: "ja",
@@ -104,9 +104,11 @@ module Sources
         max_results: MAX_VIDEOS_PER_QUERY
       )
 
-      video_ids = response.items.filter_map { |item| item.id&.video_id }
-      log "検索 q=#{query} → 動画#{video_ids.size}本"
-      video_ids
+      videos = response.items.filter_map { |item| item.id&.video_id&.then { |id| [ id, item.snippet ] } }
+      log "検索 q=#{query} → 動画#{videos.size}本"
+      # どんなチャンネルの動画を拾っているかは検索語の見直しに必要なので、ログにだけ出す（保存はしない）
+      videos.each { |id, snippet| log "  候補 #{id} [#{snippet&.channel_title}] #{snippet&.title}" }
+      videos.map(&:first)
     end
 
     # 動画1本のコメントを読んで保存する。戻り値は [保存件数, スキップ件数]
