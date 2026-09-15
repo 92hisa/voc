@@ -1,0 +1,25 @@
+<%# このファイルは仮のトップページ。指示7の診断LPができたら root を差し替える %>
+<% content_for :title, service_name %>
+
+<h1 class="text-3xl font-bold tracking-tight"><%= service_name %></h1>
+
+<p class="mt-6 text-lg leading-8 text-gray-700">
+  自分で集客している小さな会社・個人事業主のために、SNSや動画サービスの<strong>公開投稿</strong>を
+  公式API経由で集め、「悩み」「探している」「お金の話」「乗り換え」「話題」の5つの切り口に分類して、
+  週ごとの傾向としてお届けします。
+</p>
+
+<p class="mt-6 leading-7 text-gray-700">
+  投稿は<strong>集計・匿名化してのみ</strong>扱います。投稿者の氏名・アカウント名・アイコン・プロフィールは
+  保存も表示もせず、個人を追跡したり一覧にしたりすることはありません。
+</p>
+
+<p class="mt-10 rounded-lg bg-gray-50 p-6 text-sm leading-6 text-gray-600">
+  現在は準備中です。取り扱いの詳細は
+  <%= link_to "プライバシーポリシー", privacy_path, class: "underline hover:text-gray-900" %>と
+  <%= link_to "利用規約", terms_path, class: "underline hover:text-gray-900" %>、
+  データの削除方法は
+  <%= link_to "データ削除の手順", data_deletion_path, class: "underline hover:text-gray-900" %>をご覧ください。
+</p>
+
+<p class="mt-8 text-sm text-gray-500">運営者：<%= operator_name %>／連絡先：<%= contact_mail_link("お問い合わせ") %></p>

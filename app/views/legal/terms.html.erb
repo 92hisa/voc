@@ -1,0 +1,76 @@
+<%# このファイルは利用規約。企画書6.4の方針（情報提供のみ・営業には使わない）に沿う %>
+<% content_for :title, "利用規約｜#{service_name}" %>
+
+<h1 class="text-3xl font-bold tracking-tight">利用規約</h1>
+<p class="mt-3 text-sm text-gray-500">最終改定日：<%= last_updated_on %></p>
+
+<p class="mt-8 leading-7 text-gray-700">
+  この規約は、<%= operator_name %>（以下「運営者」）が提供する<%= service_name %>（以下「本サービス」）の
+  利用条件を定めるものです。本サービスをご利用いただいた方は、この規約に同意したものとみなします。
+</p>
+
+<h2 class="mt-12 text-xl font-bold">1. 本サービスの内容</h2>
+<p class="mt-4 leading-7 text-gray-700">
+  本サービスは、SNSや動画サービスの公開投稿を各社の公式APIを通じて取得し、分類・集計した
+  <strong>傾向の情報</strong>を、Webページおよびメールで提供します。情報提供を目的とするもので、
+  特定の成果を保証するものではありません。
+</p>
+
+<h2 class="mt-12 text-xl font-bold">2. 料金</h2>
+<p class="mt-4 leading-7 text-gray-700">
+  現在、本サービスは無料で提供しています。有料のプランを始める場合は、事前にこのページとメールでお知らせします。
+</p>
+
+<h2 class="mt-12 text-xl font-bold">3. 禁止事項</h2>
+<p class="mt-4 leading-7 text-gray-700">本サービスのご利用にあたり、次の行為はお控えください。</p>
+<ul class="mt-4 list-disc space-y-2 pl-6 leading-7 text-gray-700">
+  <li>提供した情報の再配布・転売・公開（社内での共有を除く）</li>
+  <li>本サービスの内容を、投稿者への営業・勧誘・自動送信に利用すること</li>
+  <li>本サービスに対する自動的な取得（スクレイピング）や、過度な負荷をかける行為</li>
+  <li>法令または公序良俗に反する行為、第三者の権利を侵害する行為</li>
+  <li>本サービスの運営を妨げる行為</li>
+</ul>
+
+<h2 class="mt-12 text-xl font-bold">4. 第三者サービスの規約</h2>
+<p class="mt-4 leading-7 text-gray-700">
+  本サービスが扱う投稿は、Threads（Meta）・YouTube（Google）・Bluesky などの公式APIを通じて取得しています。
+  これらに由来する情報をご利用の際は、各サービスの規約にも従ってください。
+  本サービスは、各社の規約・APIの仕様変更により、提供内容を変更または停止することがあります。
+</p>
+
+<h2 class="mt-12 text-xl font-bold">5. 免責</h2>
+<ul class="mt-4 list-disc space-y-2 pl-6 leading-7 text-gray-700">
+  <li>提供する情報は公開投稿にもとづく集計であり、正確性・完全性・最新性を保証しません</li>
+  <li>本サービスの情報にもとづく判断とその結果について、運営者は責任を負いません</li>
+  <li>本サービスは、法務・税務・投資・医療に関する助言ではありません</li>
+  <li>運営者の責任は、法令で許される範囲で、故意または重大な過失がある場合に限られます</li>
+</ul>
+
+<h2 class="mt-12 text-xl font-bold">6. 中断・変更・終了</h2>
+<p class="mt-4 leading-7 text-gray-700">
+  保守、障害、外部サービスの都合などにより、予告なく本サービスを中断・変更・終了することがあります。
+</p>
+
+<h2 class="mt-12 text-xl font-bold">7. メール配信の停止と退会</h2>
+<p class="mt-4 leading-7 text-gray-700">
+  週次メールは、メール内の配信停止リンクからいつでも止められます。登録情報の削除をご希望の場合は
+  <%= link_to "データ削除の手順", data_deletion_path, class: "underline hover:text-gray-900" %>
+  をご覧ください。
+</p>
+
+<h2 class="mt-12 text-xl font-bold">8. 規約の変更</h2>
+<p class="mt-4 leading-7 text-gray-700">
+  この規約を変更する場合は、このページを更新します。重要な変更のときは、購読者の方へメールでお知らせします。
+</p>
+
+<h2 class="mt-12 text-xl font-bold">9. 準拠法と裁判管轄</h2>
+<p class="mt-4 leading-7 text-gray-700">
+  この規約は日本法に従って解釈されます。本サービスに関する紛争は、運営者の所在地を管轄する日本の裁判所を
+  専属的合意管轄とします。
+</p>
+
+<h2 class="mt-12 text-xl font-bold">10. お問い合わせ</h2>
+<p class="mt-4 leading-7 text-gray-700">
+  運営者：<%= operator_name %><br>
+  連絡先：<%= contact_mail_link("利用規約について") %>
+</p>

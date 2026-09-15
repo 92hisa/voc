@@ -1,0 +1,71 @@
+<%# このファイルはデータ削除の手順。Threads（Meta）審査の「データ削除の手順URL」として提出する %>
+<% content_for :title, "データ削除の手順｜#{service_name}" %>
+
+<h1 class="text-3xl font-bold tracking-tight">データ削除の手順</h1>
+<p class="mt-3 text-sm text-gray-500">最終改定日：<%= last_updated_on %></p>
+
+<p class="mt-8 leading-7 text-gray-700">
+  <%= service_name %>に保存されているご自身のデータは、いつでも削除をご依頼いただけます。
+  やりたいことに合わせて、以下の手順をご覧ください。ご連絡から<strong>30日以内</strong>に対応し、
+  完了したらご連絡します。費用はかかりません。
+</p>
+
+<h2 class="mt-12 text-xl font-bold">1. 週次メールを止めたい</h2>
+<p class="mt-4 leading-7 text-gray-700">
+  お送りしているメールの末尾にある「配信停止」リンクを押してください。すぐに配信を止めます。
+  リンクが見つからない場合は、<%= contact_mail_link("配信停止のお願い") %> 宛にご連絡ください。
+</p>
+
+<h2 class="mt-12 text-xl font-bold">2. 登録したメールアドレスを削除したい</h2>
+<p class="mt-4 leading-7 text-gray-700">
+  <%= contact_mail_link("登録情報の削除のお願い") %> 宛に、次の内容でメールをお送りください。
+</p>
+<ul class="mt-4 list-disc space-y-2 pl-6 leading-7 text-gray-700">
+  <li>件名：登録情報の削除のお願い</li>
+  <li>本文：ご登録のメールアドレス</li>
+</ul>
+<p class="mt-4 leading-7 text-gray-700">
+  ご登録のアドレスから送っていただくと、確認が早く済みます。削除後は、そのアドレスへの配信も停止されます。
+</p>
+
+<h2 class="mt-12 text-xl font-bold">3. 自分の投稿の保存データを削除してほしい</h2>
+<p class="mt-4 leading-7 text-gray-700">
+  本サービスは公開投稿を集計のために保存しています（保存するのは投稿ID・本文・投稿日時・媒体名・公開指標だけで、
+  投稿者の氏名・アカウント名・アイコン・プロフィールは保存していません）。
+  ご自身の投稿の削除をご希望の場合は、<%= contact_mail_link("投稿データの削除のお願い") %> 宛に
+  <strong>該当する投稿のURL</strong>を添えてご連絡ください。投稿者ご本人であることを確認のうえ、すみやかに削除します。
+</p>
+<p class="mt-4 leading-7 text-gray-700">
+  なお、元の投稿を各サービス上で削除された場合も、本サービス側の保存データは
+  <%= retention_days %>日以内に消えます（下記5）。
+</p>
+
+<h2 class="mt-12 text-xl font-bold">4. Threads（Meta）との連携を解除したい</h2>
+<p class="mt-4 leading-7 text-gray-700">
+  本サービスにThreadsアカウントを連携された場合は、次の手順で解除できます。
+</p>
+<ol class="mt-4 list-decimal space-y-2 pl-6 leading-7 text-gray-700">
+  <li>Threads または Instagram アプリを開く</li>
+  <li>「設定」→「アカウント」→「ウェブサイトの許可」（Instagram では「アプリとウェブサイト」）を開く</li>
+  <li>一覧から<%= service_name %>を選び、アクセスを解除する</li>
+</ol>
+<p class="mt-4 leading-7 text-gray-700">
+  連携解除後も本サービスに残っているデータの削除をご希望の場合は、
+  <%= contact_mail_link("Threads連携データの削除のお願い") %> 宛にご連絡ください。
+  アクセストークンは解除の時点で無効になり、本サービスからも破棄します。
+</p>
+
+<h2 class="mt-12 text-xl font-bold">5. 何もしなくても消えるもの</h2>
+<ul class="mt-4 list-disc space-y-2 pl-6 leading-7 text-gray-700">
+  <li>投稿本文：取得から<strong>最大<%= retention_days %>日</strong>で自動的に削除されます</li>
+  <li>そのあと残るのは、件数や前週比などの<strong>匿名の集計値</strong>だけで、個人を識別できる情報は含みません</li>
+</ul>
+
+<h2 class="mt-12 text-xl font-bold">6. 連絡先</h2>
+<p class="mt-4 leading-7 text-gray-700">
+  運営者：<%= operator_name %><br>
+  連絡先：<%= contact_mail_link("データ削除のお願い") %>
+</p>
+<p class="mt-4 leading-7 text-gray-700">
+  取り扱いの全体は<%= link_to "プライバシーポリシー", privacy_path, class: "underline hover:text-gray-900" %>をご覧ください。
+</p>

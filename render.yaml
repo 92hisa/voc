@@ -1,0 +1,75 @@
+# このファイルはRenderのデプロイ設定。Web（Puma）とジョブ（Solid Queue）を同じサービスで動かし、
+# SQLiteのDBファイルは永続ディスク /data に置く。GitHubへのpushで自動デプロイされる。
+services:
+  - type: web
+    name: voc
+    runtime: ruby
+    region: singapore
+    # 永続ディスクを付けるには有料プランが必要（Freeでは使えない）
+    plan: starter
+    # SQLiteは1プロセスから書くので、インスタンスは必ず1つのまま
+    numInstances: 1
+    buildCommand: "bundle install && SECRET_KEY_BASE_DUMMY=1 bundle exec rails assets:precompile"
+    # マイグレーションは新しいコードを動かす前に1回だけ流す
+    preDeployCommand: "bundle exec rails db:prepare"
+    startCommand: "bundle exec puma -C config/puma.rb"
+    healthCheckPath: /up
+    autoDeployTrigger: commit
+
+    disk:
+      name: data
+      mountPath: /data
+      sizeGB: 1
+
+    envVars:
+      - key: RAILS_ENV
+        value: production
+      # Renderが自動で作る（コミットしない）
+      - key: SECRET_KEY_BASE
+        generateValue: true
+      # 永続ディスク上のDBファイル。キャッシュ用・ジョブ用も同じフォルダに作られる
+      - key: DATABASE_PATH
+        value: /data/production.sqlite3
+      # Puma の中で Solid Queue のジョブも動かす（サービスを分けない）
+      - key: SOLID_QUEUE_IN_PUMA
+        value: "true"
+      - key: RAILS_MAX_THREADS
+        value: "3"
+      - key: WEB_CONCURRENCY
+        value: "1"
+
+      # --- ここから下はRenderの画面で値を入れる（sync: false＝このファイルには書かない） ---
+      # AI（分類・検索語生成）
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: AI_MODEL
+        sync: false
+      # メール送信（Resend）とメール内リンクのホスト名
+      - key: RESEND_API_KEY
+        sync: false
+      - key: MAIL_FROM
+        sync: false
+      - key: APP_HOST
+        sync: false
+      # 規約ページに出す運営者名と問い合わせ先
+      - key: OPERATOR_NAME
+        sync: false
+      - key: CONTACT_EMAIL
+        sync: false
+      # Threads（審査後に使う）
+      - key: THREADS_APP_ID
+        sync: false
+      - key: THREADS_APP_SECRET
+        sync: false
+      # 計測
+      - key: GA4_ID
+        sync: false
+      - key: META_PIXEL_ID
+        sync: false
+      # YouTube・Bluesky（収集は現在停止中。再開するときに入れる）
+      - key: YOUTUBE_API_KEY
+        sync: false
+      - key: BLUESKY_HANDLE
+        sync: false
+      - key: BLUESKY_APP_PASSWORD
+        sync: false

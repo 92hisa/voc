@@ -49,6 +49,9 @@ bin/rails queries:generate[web-seisaku]   # 1オーディエンスだけ作り�
 
 ## 収集（YouTube）
 
+> **現在停止中。** 直近7日の動画にコメントがほぼ付かず、集まるのは無関係な投稿だった
+> （`docs/runs/2026-09-15_youtube_query_check.md`）。Threadsの審査を通してから再開する。
+
 ```bash
 bin/rails collect[web-seisaku,youtube,7]  # 直近7日の動画のコメントを集めて posts に保存
 ```
@@ -67,6 +70,9 @@ bin/rails collect[web-seisaku,youtube,7]  # 直近7日の動画のコメント�
 1日に何度も回すときは `quota_limit` を分けて渡す。
 
 ## 収集（Bluesky）
+
+> **現在停止中。** 3オーディエンスで試して、事業者が自分の商売の悩みを書いた投稿はサンプル20件中0件
+> （`docs/runs/2026-09-16_bluesky_3audiences.md`）。Threadsの審査を通してから再開する。
 
 ```bash
 bin/rails collect[web-seisaku,bluesky,7]  # 直近7日の投稿を集めて posts に保存
@@ -101,11 +107,47 @@ SQLite。開発用のファイルは `storage/development.sqlite3`。
 | `weekly_snapshots` | 週次の集計（件数・前週比・狙い目スコア）。**削除しない** |
 | `subscribers` | 週次メールの購読者。オーディエンスごとに1メールアドレス1件 |
 
+## 規約系の3ページ
+
+Threads（Meta）のアプリ審査で提出するURL。文面は `app/views/legal/` にあり、方針は企画書6.4に沿う。
+
+| URL | 中身 |
+|---|---|
+| `/privacy` | プライバシーポリシー（保存するのは投稿ID・本文・日時・媒体・公開指標だけ。投稿者名は保存しない。本文は30日で削除） |
+| `/terms` | 利用規約（情報提供のみ・営業には使わない・免責・管轄） |
+| `/data-deletion` | データ削除の手順（配信停止／登録情報／投稿データ／Threads連携の解除） |
+
+運営者名と問い合わせ先は環境変数 `OPERATOR_NAME` / `CONTACT_EMAIL` から表示する。
+**未設定だと「設定してください」と画面に出る**ので、審査に出す前に必ず入れる。
+`/` は仮のトップページ（`legal#home`）で、指示7の診断LPができたら差し替える。
+
 ## 環境変数
 
-`.env.example` を参照（`ANTHROPIC_API_KEY` / `AI_MODEL` / `YOUTUBE_API_KEY` / `BLUESKY_HANDLE` /
-`BLUESKY_APP_PASSWORD` / `RESEND_API_KEY` / `MAIL_FROM` / `APP_HOST` / `GA4_ID` / `META_PIXEL_ID` /
-`DATABASE_PATH`）。開発中は `.env` に書けば `dotenv` が読み込む。本番は Render の環境変数に設定する。
+開発中は `.env` に書けば `dotenv` が読み込む。本番は Render の環境変数に設定する（`render.yaml` 参照）。
+
+| キー | 用途 | 本番での入れ方 |
+|---|---|---|
+| `SECRET_KEY_BASE` | Rails のセッション署名 | Renderが自動生成 |
+| `DATABASE_PATH` | 本番DBファイルの場所 | `render.yaml` に記載（`/data/production.sqlite3`） |
+| `SOLID_QUEUE_IN_PUMA` | Puma内でジョブも動かす | `render.yaml` に記載（`true`） |
+| `ANTHROPIC_API_KEY` / `AI_MODEL` | 分類・検索語生成 | Renderの画面で入力 |
+| `OPERATOR_NAME` / `CONTACT_EMAIL` | 規約ページの運営者表示 | Renderの画面で入力 |
+| `THREADS_APP_ID` / `THREADS_APP_SECRET` | Threads OAuth（審査後） | Renderの画面で入力 |
+| `RESEND_API_KEY` / `MAIL_FROM` / `APP_HOST` | メール配信 | Renderの画面で入力 |
+| `GA4_ID` / `META_PIXEL_ID` | 計測 | Renderの画面で入力 |
+| `YOUTUBE_API_KEY` | YouTube収集（**現在停止中**） | 再開するときに入力 |
+| `BLUESKY_HANDLE` / `BLUESKY_APP_PASSWORD` | Bluesky収集（**現在停止中**） | 再開するときに入力 |
+
+## デプロイ（Render）
+
+`render.yaml` を置いてあるので、Renderで「New → Blueprint」からこのリポジトリを指定すれば読み込まれる。
+
+- Web（Puma）とジョブ（Solid Queue）を**同一サービス**で動かす（`SOLID_QUEUE_IN_PUMA=true`）
+- SQLiteのDBは**永続ディスク `/data`**（1GB）に置く。キャッシュ用・ジョブ用のDBも同じフォルダに作られる
+- 永続ディスクは有料プランが必要なので `plan: starter`。SQLiteは1プロセスで書くので `numInstances: 1` を変えない
+- ビルド時に `assets:precompile`（Tailwindのビルドを含む）、デプロイ前に `db:prepare` を実行
+- ヘルスチェックは `/up`、GitHubの main への push で自動デプロイ
+- `sync: false` のキーはRenderの画面で入れる（このファイルには秘密情報を書かない）
 
 ## ジョブ（Solid Queue）
 
@@ -114,5 +156,11 @@ SQLite。開発用のファイルは `storage/development.sqlite3`。
 
 ## これから作るもの
 
-収集（YouTube・Bluesky）→ AI分類 → クラスタ化・週次集計 → 診断LP → 週次メール の順に作る。
-手順は `CLAUDE.md` 第9節。
+YouTube・Blueskyでは「事業者の悩み」が集まらなかったので、本命のThreadsを先に通す。
+
+1. ✅ Renderデプロイの設定（`render.yaml`）
+2. ✅ 規約系3ページ（`/privacy` `/terms` `/data-deletion`）
+3. Threads OAuthでログインして検索語で投稿を一覧表示する最小画面
+   （`/threads/login` → `/threads/search`。Metaアプリの作成後に着手）
+4. `app/services/sources/threads_source.rb`
+5. AI分類 → クラスタ化・週次集計 → 診断LP → 週次メール（`CLAUDE.md` 第9節の指示5〜8）

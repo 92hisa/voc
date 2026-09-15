@@ -1,31 +1,35 @@
 <!DOCTYPE html>
-<html>
+<html lang="ja">
   <head>
-    <title><%= content_for(:title) || "Voc" %></title>
+    <title><%= content_for(:title) || service_name %></title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="application-name" content="Voc">
-    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="application-name" content="<%= service_name %>">
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
 
     <%= yield :head %>
 
-    <%# Enable PWA manifest for installable apps (make sure to enable in config/routes.rb too!) %>
-    <%#= tag.link rel: "manifest", href: pwa_manifest_path(format: :json) %>
-
     <link rel="icon" href="/icon.png" type="image/png">
     <link rel="icon" href="/icon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="/icon.png">
 
-    <%# Includes all stylesheet files in app/assets/stylesheets %>
-    <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
+    <%# tailwind.css は bin/rails tailwindcss:build で app/assets/builds に作られる %>
+    <%= stylesheet_link_tag "tailwind", "application", "data-turbo-track": "reload" %>
     <%= javascript_importmap_tags %>
   </head>
 
-  <body>
-    <main class="container mx-auto mt-28 px-5 flex">
+  <body class="bg-white text-gray-900 antialiased">
+    <main class="mx-auto max-w-3xl px-6 py-16">
       <%= yield %>
     </main>
+
+    <footer class="mx-auto max-w-3xl border-t border-gray-200 px-6 py-10 text-sm text-gray-500">
+      <p class="mb-3"><%= service_name %></p>
+      <nav class="flex flex-wrap gap-x-6 gap-y-2">
+        <%= link_to "プライバシーポリシー", privacy_path, class: "underline hover:text-gray-900" %>
+        <%= link_to "利用規約", terms_path, class: "underline hover:text-gray-900" %>
+        <%= link_to "データ削除の手順", data_deletion_path, class: "underline hover:text-gray-900" %>
+      </nav>
+    </footer>
   </body>
 </html>

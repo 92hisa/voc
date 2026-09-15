@@ -9,6 +9,11 @@ Rails.application.routes.draw do
   # get "manifest" => "rails/pwa#manifest", as: :pwa_manifest
   # get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker
 
-  # Defines the root path route ("/")
-  # root "posts#index"
+  # 規約系の3ページ（Threadsのアプリ審査で提出するURL）
+  get "privacy" => "legal#privacy", as: :privacy
+  get "terms" => "legal#terms", as: :terms
+  get "data-deletion" => "legal#data_deletion", as: :data_deletion
+
+  # 診断LP（指示7）ができたら root は diagnosis#index に差し替える
+  root "legal#home"
 end
