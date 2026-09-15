@@ -6,9 +6,10 @@ class Sources::YoutubeSourceTest < ActiveSupport::TestCase
   class FakeClient
     attr_reader :searched_queries, :comment_calls
 
-    def initialize(video_ids:, threads:)
+    def initialize(video_ids:, threads:, video_titles: {})
       @video_ids = video_ids
       @threads = threads
+      @video_titles = video_titles
       @searched_queries = []
       @comment_calls = []
     end
@@ -17,7 +18,12 @@ class Sources::YoutubeSourceTest < ActiveSupport::TestCase
       @searched_queries << options[:q]
       items = @video_ids.map do |video_id|
         Google::Apis::YoutubeV3::SearchResult.new(
-          id: Google::Apis::YoutubeV3::ResourceId.new(video_id: video_id)
+          id: Google::Apis::YoutubeV3::ResourceId.new(video_id: video_id),
+          snippet: Google::Apis::YoutubeV3::SearchResultSnippet.new(
+            title: @video_titles.fetch(video_id, "ホームページ 制作 依頼の流れ"),
+            description: "",
+            channel_title: "テストチャンネル"
+          )
         )
       end
       Google::Apis::YoutubeV3::SearchListsResponse.new(items: items)
@@ -45,8 +51,8 @@ class Sources::YoutubeSourceTest < ActiveSupport::TestCase
     )
   end
 
-  def collect_with(threads, video_ids: [ "video-1" ], quota_limit: Sources::YoutubeSource::DAILY_QUOTA_LIMIT)
-    client = FakeClient.new(video_ids: video_ids, threads: threads)
+  def collect_with(threads, video_ids: [ "video-1" ], video_titles: {}, quota_limit: Sources::YoutubeSource::DAILY_QUOTA_LIMIT)
+    client = FakeClient.new(video_ids: video_ids, threads: threads, video_titles: video_titles)
     source = Sources::YoutubeSource.new(
       audience: audiences(:web_seisaku),
       days: 7,
@@ -98,6 +104,42 @@ class Sources::YoutubeSourceTest < ActiveSupport::TestCase
     assert_equal 0, second.saved_count
     assert_equal 1, second.skipped_count
     assert_equal 1, Post.where(external_id: "comment-1").count
+  end
+
+  test "主題と関係ない動画はコメントを読まない" do
+    threads = [ build_thread(id: "comment-1", text: "ホームページの制作費用が高くて悩んでいます") ]
+
+    # 検索語「ホームページ 制作 依頼」の主題語が入っていないタイトル
+    result, client = collect_with(
+      threads,
+      video_ids: [ "video-1", "video-2" ],
+      video_titles: { "video-1" => "iPhone18 Pro 価格比較、キャリア購入は慎重に" }
+    )
+
+    assert_equal [ "video-2" ], client.comment_calls
+    assert_equal 1, result.video_count
+    assert_equal 100 + 1, result.quota_used
+  end
+
+  test "説明文に主題語があれば読む" do
+    threads = [ build_thread(id: "comment-1", text: "ホームページの制作費用が高くて悩んでいます") ]
+    client = FakeClient.new(video_ids: [ "video-1" ], threads: threads, video_titles: { "video-1" => "無題" })
+    client.define_singleton_method(:list_searches) do |_part, **options|
+      @searched_queries << options[:q]
+      Google::Apis::YoutubeV3::SearchListsResponse.new(items: [
+        Google::Apis::YoutubeV3::SearchResult.new(
+          id: Google::Apis::YoutubeV3::ResourceId.new(video_id: "video-1"),
+          snippet: Google::Apis::YoutubeV3::SearchResultSnippet.new(
+            title: "無題", description: "ホームページを作りたい人向けの回", channel_title: "テスト"
+          )
+        )
+      ])
+    end
+    source = Sources::YoutubeSource.new(
+      audience: audiences(:web_seisaku), days: 7, client: client, logger: ActiveSupport::Logger.new(IO::NULL)
+    )
+
+    assert_equal 1, source.collect.saved_count
   end
 
   test "クォータ上限を超える前に止める" do

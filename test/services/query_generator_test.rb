@@ -7,11 +7,12 @@ class QueryGeneratorTest < ActiveSupport::TestCase
     Block = Struct.new(:type, :text)
     Response = Struct.new(:content)
 
-    attr_reader :prompts
+    attr_reader :prompts, :systems
 
     def initialize(reply)
       @reply = reply
       @prompts = []
+      @systems = []
     end
 
     def messages
@@ -20,6 +21,7 @@ class QueryGeneratorTest < ActiveSupport::TestCase
 
     def create(**options)
       @prompts << options[:messages].first[:content]
+      @systems << options[:system_].first[:text]
       Response.new([ Block.new(:text, @reply) ])
     end
   end
@@ -50,6 +52,14 @@ class QueryGeneratorTest < ActiveSupport::TestCase
     assert_equal [ "ai" ], saved.pluck(:generated_by).uniq
     assert_match "Web制作を頼む人", client.prompts.first
     assert_match "媒体: youtube", client.prompts.first
+  end
+
+  test "媒体ごとの書き方をシステムプロンプトに入れる" do
+    _results, client = generate(reply_with("ホームページ制作 相場"), sources: [ "youtube", "bluesky" ])
+
+    assert_match "名詞中心の主題語を2〜3語だけ並べる", client.systems.first
+    assert_no_match(/名詞中心の主題語/, client.systems.second)
+    assert_match "話し言葉でよい", client.systems.second
   end
 
   test "同じ媒体の既存の検索語は is_active=false にする" do

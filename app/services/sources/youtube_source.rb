@@ -18,6 +18,13 @@ module Sources
     # 生投稿の保持期間。YouTubeの規約に合わせて30日で失効させ、以降は集計値だけ残す
     RETENTION_DAYS = 30
 
+    # 検索語のうち「検討の観点」を表す語。どの業種にも出てくる一般語なので、
+    # 動画が主題に合っているかの判定には使わない（例「サイト制作 見積もり 比較」の 見積もり・比較）
+    ASPECT_WORDS = %w[
+      費用 相場 価格 料金 比較 選び方 選定 見積もり 見積 外注 依頼 発注 流れ 手順
+      トラブル 期間 納期 検討 おすすめ 方法 注意点
+    ].freeze
+
     # 実行結果。rake タスクとジョブがこの中身をそのままログに出す
     Result = Struct.new(
       :query_count, :video_count, :saved_count, :skipped_count,
@@ -105,10 +112,29 @@ module Sources
       )
 
       videos = response.items.filter_map { |item| item.id&.video_id&.then { |id| [ id, item.snippet ] } }
-      log "検索 q=#{query} → 動画#{videos.size}本"
-      # どんなチャンネルの動画を拾っているかは検索語の見直しに必要なので、ログにだけ出す（保存はしない）
-      videos.each { |id, snippet| log "  候補 #{id} [#{snippet&.channel_title}] #{snippet&.title}" }
-      videos.map(&:first)
+
+      # YouTubeの検索は全語のAND検索ではないので、主題と関係ない人気動画が混ざる
+      # （「サイト制作 見積もり 比較」でiPhoneの価格比較動画が返る）。
+      # タイトルか説明文に主題語が入っている動画だけに絞る。
+      # どのチャンネルを拾ったかは検索語の見直しに必要なので、ログにだけ出す（保存はしない）
+      matched = videos.select do |id, snippet|
+        keep = on_topic?(query, snippet)
+        log "  #{keep ? '候補' : '除外'} #{id} [#{snippet&.channel_title}] #{snippet&.title}"
+        keep
+      end
+
+      log "検索 q=#{query} → 動画#{videos.size}本のうち主題に合う#{matched.size}本"
+      matched.map(&:first)
+    end
+
+    # 検索語の主題語（観点の語を除いた残り）が、動画のタイトルか説明文に入っているか。
+    # 主題語が無い検索語（観点の語だけ）のときは絞り込めないので通す
+    def on_topic?(query, snippet)
+      topics = query.split(/[[:space:]]+/).reject { |word| ASPECT_WORDS.include?(word) }
+      return true if topics.empty?
+
+      haystack = "#{snippet&.title} #{snippet&.description}".downcase
+      topics.any? { |topic| haystack.include?(topic.downcase) }
     end
 
     # 動画1本のコメントを読んで保存する。戻り値は [保存件数, スキップ件数]
