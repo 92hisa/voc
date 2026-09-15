@@ -423,6 +423,7 @@ DEPENDENCIES
   capybara
   debug
   dotenv-rails
+  faraday
   google-apis-youtube_v3
   importmap-rails
   json (~> 2.7)

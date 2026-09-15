@@ -9,7 +9,8 @@ class CollectJob < ApplicationJob
     source_object =
       case source.to_s
       when "youtube" then Sources::YoutubeSource.new(audience: audience, days: days.to_i)
-      else raise ArgumentError, "未対応の媒体です: #{source}（今使えるのは youtube）"
+      when "bluesky" then Sources::BlueskySource.new(audience: audience, days: days.to_i)
+      else raise ArgumentError, "未対応の媒体です: #{source}（今使えるのは youtube / bluesky）"
       end
 
     source_object.collect

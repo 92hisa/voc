@@ -16,10 +16,17 @@ task :collect, [ :slug, :source, :days ] => :environment do |_task, args|
   puts
   puts "── 収集結果 #{slug} / #{source} / 直近#{days}日 ──"
   puts "検索語        : #{result.query_count}件"
-  puts "見た動画      : #{result.video_count}本"
+  case source
+  when "youtube"
+    puts "見た動画      : #{result.video_count}本"
+  when "bluesky"
+    puts "取得した投稿  : #{result.fetched_count}件"
+  end
   puts "保存した投稿  : #{result.saved_count}件"
   puts "捨てた投稿    : #{result.skipped_count}件（短い・日本語でない・既に保存済み）"
-  puts "使用クォータ  : #{result.quota_used} / #{Sources::YoutubeSource::DAILY_QUOTA_LIMIT} ユニット"
-  puts "クォータ中断  : #{result.stopped_by_quota ? 'あり' : 'なし'}"
+  if source == "youtube"
+    puts "使用クォータ  : #{result.quota_used} / #{Sources::YoutubeSource::DAILY_QUOTA_LIMIT} ユニット"
+    puts "クォータ中断  : #{result.stopped_by_quota ? 'あり' : 'なし'}"
+  end
   puts "posts 合計    : #{Audience.find_by!(slug: slug).posts.for_source(source).count}件"
 end

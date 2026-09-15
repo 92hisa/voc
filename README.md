@@ -66,6 +66,23 @@ bin/rails collect[web-seisaku,youtube,7]  # 直近7日の動画のコメント�
 検索語の見直しに使う。1回の取りすぎを防ぐ上限は `YoutubeSource` の定数（検索語ごと10本／動画ごと5ページ＝最大500件）。
 1日に何度も回すときは `quota_limit` を分けて渡す。
 
+## 収集（Bluesky）
+
+```bash
+bin/rails collect[web-seisaku,bluesky,7]  # 直近7日の投稿を集めて posts に保存
+```
+
+`app/services/sources/bluesky_source.rb` が Faraday で AT Protocol のXRPCを直接叩く。
+`com.atproto.server.createSession`（ハンドル＋アプリパスワード）でログインし、
+`app.bsky.feed.searchPosts` を `lang=ja` / `sort=latest` / `since=直近N日` でページングする。クォータはない。
+
+保存するのは投稿URI・本文・日時・公開指標（`like_count` / `reply_count` / `repost_count` / `quote_count`）だけ。
+**表示名・アバター・プロフィールは保存しない**（投稿URIにDIDが入るが、これは投稿IDそのもの）。
+本文は30日で失効（`expires_at`）。同じ投稿は2回目以降スキップするので再実行できる。
+
+検索は**書いた語を全部含む投稿しか返らない**ので、検索語は1〜2語にする（3語以上はほぼ0件）。
+逆に「サイト」のような広い1語はレシピサイト・同人サイトの話に当たるので、主題語は具体的にする。
+
 ## データベース
 
 SQLite。開発用のファイルは `storage/development.sqlite3`。

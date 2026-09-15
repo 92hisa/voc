@@ -59,7 +59,7 @@ class QueryGeneratorTest < ActiveSupport::TestCase
 
     assert_match "名詞中心の主題語を2〜3語だけ並べる", client.systems.first
     assert_no_match(/名詞中心の主題語/, client.systems.second)
-    assert_match "話し言葉でよい", client.systems.second
+    assert_match "1〜2語まで", client.systems.second
   end
 
   test "同じ媒体の既存の検索語は is_active=false にする" do

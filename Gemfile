@@ -23,6 +23,9 @@ gem "google-apis-youtube_v3"
 # Claude の公式クライアント（分類・検索語生成。モデルは環境変数 AI_MODEL）
 gem "anthropic"
 
+# HTTPクライアント（Bluesky の AT Protocol を直接叩く。使うのは app/services/sources/bluesky_source.rb だけ）
+gem "faraday"
+
 # json 3系は Rails 8.1 の JSON パース（ActiveSupport::JSON.decode）と非互換なので2系に固定する
 gem "json", "~> 2.7"
 
