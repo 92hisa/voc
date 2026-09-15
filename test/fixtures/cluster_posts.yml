@@ -1,0 +1,7 @@
+web_pain_link:
+  cluster: web_pain_cluster
+  post: web_pain
+
+web_seeking_link:
+  cluster: web_seeking_cluster
+  post: web_seeking

@@ -1,0 +1,12 @@
+confirmed:
+  email: reader@example.com
+  audience: web_seisaku
+  confirmed_at: 2026-09-01 09:00:00
+  utm: { utm_source: threads, utm_campaign: shindan }
+
+unsubscribed:
+  email: leaver@example.com
+  audience: web_seisaku
+  confirmed_at: 2026-08-01 09:00:00
+  unsubscribed_at: 2026-09-01 09:00:00
+  utm: {}

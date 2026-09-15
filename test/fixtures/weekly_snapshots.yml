@@ -1,0 +1,21 @@
+web_pain_snapshot:
+  audience: web_seisaku
+  week_start: 2026-09-07
+  lens: pain
+  cluster: web_pain_cluster
+  post_count: 12
+  author_count: 10
+  wow_change: 0.5
+  supply_count: 3
+  opportunity_score: 4.0
+
+web_seeking_snapshot:
+  audience: web_seisaku
+  week_start: 2026-09-07
+  lens: seeking
+  cluster: web_seeking_cluster
+  post_count: 5
+  author_count: 5
+  wow_change:
+  supply_count: 2
+  opportunity_score: 2.5

@@ -1,0 +1,13 @@
+web_pain_cluster:
+  audience: web_seisaku
+  lens: pain
+  week_start: 2026-09-07
+  name: 問い合わせが来ない
+  representative_text: ホームページを作ったけど問い合わせがゼロ
+
+web_seeking_cluster:
+  audience: web_seisaku
+  lens: seeking
+  week_start: 2026-09-07
+  name: 制作者を探している
+  representative_text: Web制作で信頼できる人いませんか

@@ -1,0 +1,26 @@
+web_pain:
+  post: web_pain
+  lens: pain
+  side: buyer
+  intent: vague
+  confidence: 0.9
+  model: claude-test
+  classified_at: 2026-09-09 04:00:00
+
+web_seeking:
+  post: web_seeking
+  lens: seeking
+  side: buyer
+  intent: now
+  confidence: 0.8
+  model: claude-test
+  classified_at: 2026-09-09 14:00:00
+
+ec_money:
+  post: ec_money
+  lens: money
+  side: peer
+  intent: none
+  confidence: 0.6
+  model: claude-test
+  classified_at: 2026-09-10 11:00:00

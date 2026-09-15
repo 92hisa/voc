@@ -1,0 +1,20 @@
+web_youtube:
+  audience: web_seisaku
+  source: youtube
+  query: ホームページ 制作 依頼
+  is_active: true
+  generated_by: ai
+
+web_bluesky:
+  audience: web_seisaku
+  source: bluesky
+  query: サイト 作りたい
+  is_active: true
+  generated_by: human
+
+ec_youtube:
+  audience: ec_unei
+  source: youtube
+  query: ネットショップ 売れない
+  is_active: false
+  generated_by: ai

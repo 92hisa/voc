@@ -1,0 +1,44 @@
+# SQLite. Versions 3.8.0 and up are supported.
+#   gem install sqlite3
+#
+#   Ensure the SQLite 3 gem is defined in your Gemfile
+#   gem "sqlite3"
+#
+default: &default
+  adapter: sqlite3
+  max_connections: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
+  timeout: 5000
+
+development:
+  <<: *default
+  database: storage/development.sqlite3
+
+# Warning: The database defined as "test" will be erased and
+# re-generated from your development database when you run "rake".
+# Do not set this db to the same as development or production.
+test:
+  <<: *default
+  database: storage/test.sqlite3
+
+# SQLite3 write its data on the local filesystem, as such it requires
+# persistent disks. If you are deploying to a managed service, you should
+# make sure it provides disk persistence, as many don't.
+#
+# Similarly, if you deploy your application as a Docker container, you must
+# ensure the database is located in a persisted volume.
+# 本番は Render の永続ディスク上に置く（例: DATABASE_PATH=/data/production.sqlite3）。
+# キャッシュ用・ジョブ用のDBは、同じフォルダに並べて作る。
+<% production_db = ENV.fetch("DATABASE_PATH", "storage/production.sqlite3") %>
+<% production_dir = File.dirname(production_db) %>
+production:
+  primary:
+    <<: *default
+    database: <%= production_db %>
+  cache:
+    <<: *default
+    database: <%= production_dir %>/production_cache.sqlite3
+    migrations_paths: db/cache_migrate
+  queue:
+    <<: *default
+    database: <%= production_dir %>/production_queue.sqlite3
+    migrations_paths: db/queue_migrate

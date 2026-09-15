@@ -1,0 +1,9 @@
+web_seisaku:
+  slug: web-seisaku
+  name: Web制作を頼む人
+  description: 自社サイトやLPの制作・改善を外注したい小さな会社・個人事業主
+
+ec_unei:
+  slug: ec-unei
+  name: EC運営で困っている人
+  description: ネットショップの売上や運用で困っている事業者
