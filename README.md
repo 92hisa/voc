@@ -37,7 +37,7 @@ bin/rails test          # Minitest。1タスク終えるごとにこれを通す
 ## 検索語（AI生成）
 
 ```bash
-bin/rails seed:audiences                  # 初期3オーディエンスを登録（検索語は入らない）
+bin/rails seed:audiences                  # 初期3オーディエンス＋Threadsの検索語（db/seeds.rb）
 bin/rails queries:generate                # 全オーディエンスの検索語をAIで生成
 bin/rails queries:generate[web-seisaku]   # 1オーディエンスだけ作り直す
 ```
@@ -166,7 +166,9 @@ Threads（Meta）のアプリ審査で提出するURL。文面は `app/views/leg
 - Web（Puma）とジョブ（Solid Queue）を**同一サービス**で動かす（`SOLID_QUEUE_IN_PUMA=true`）
 - SQLiteのDBは**永続ディスク `/data`**（1GB）に置く。キャッシュ用・ジョブ用のDBも同じフォルダに作られる
 - 永続ディスクは有料プランが必要なので `plan: starter`。SQLiteは1プロセスで書くので `numInstances: 1` を変えない
-- ビルド時に `assets:precompile`（Tailwindのビルドを含む）、デプロイ前に `db:prepare` を実行
+- ビルド時に `assets:precompile`（Tailwindのビルドを含む）。**`db:prepare` は起動コマンドで実行する**
+  （Renderの永続ディスクはビルドと pre-deploy ではマウントされないため、そこで流すと `/data` 以外にDBができる）
+- DBを新しく作ったときは `db:prepare` が `db/seeds.rb` を流し、3オーディエンスとThreadsの検索語が入る
 - ヘルスチェックは `/up`、GitHubの main への push で自動デプロイ
 - `sync: false` のキーはRenderの画面で入れる（このファイルには秘密情報を書かない）
 - 公開URLは **https://voc-1ntn.onrender.com** 。`render.yaml` の `name: voc` はサービス名で、

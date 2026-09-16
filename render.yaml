@@ -10,9 +10,10 @@ services:
     # SQLiteは1プロセスから書くので、インスタンスは必ず1つのまま
     numInstances: 1
     buildCommand: "bundle install && SECRET_KEY_BASE_DUMMY=1 bundle exec rails assets:precompile"
-    # マイグレーションは新しいコードを動かす前に1回だけ流す
-    preDeployCommand: "bundle exec rails db:prepare"
-    startCommand: "bundle exec puma -C config/puma.rb"
+    # db:prepare は「起動時」に流す。Renderの永続ディスクはビルドと preDeployCommand では
+    # マウントされないので（別のマシンで動くため）、そこで流すと /data ではない場所にDBができてしまう。
+    # db:prepare は何度実行してもよい（DBが無ければ作り、あればマイグレーションだけ流す）
+    startCommand: "bundle exec rails db:prepare && bundle exec puma -C config/puma.rb"
     healthCheckPath: /up
     autoDeployTrigger: commit
 
