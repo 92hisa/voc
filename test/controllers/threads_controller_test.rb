@@ -66,25 +66,30 @@ class ThreadsControllerTest < ActionDispatch::IntegrationTest
     assert_select "h1", "Threadsと連携する"
     assert_match "threads_keyword_search", response.body
     assert_match "https://voc-1ntn.onrender.com/threads/callback", response.body
-    assert_select "form[action=?]", threads_authorize_path
+
+    # 外部ドメインへはふつうのリンクで飛ぶ（フォームだとTurboに止められる）
+    link = css_select("a[href^='https://threads.com/oauth/authorize']").first
+    assert link.present?, "Threadsの認可画面へのリンクが無い"
+    assert_equal "false", link["data-turbo"]
   end
 
-  test "App IDが無いときはボタンを出さず理由を書く" do
+  test "App IDが無いときはリンクを出さず理由を書く" do
     ENV.delete("THREADS_APP_ID")
 
     get threads_login_url
 
     assert_response :success
-    assert_select "form[action=?]", threads_authorize_path, count: 0
+    assert_select "a[href^=?]", "https://threads.com/oauth/authorize", count: 0
     assert_match "THREADS_APP_ID", response.body
   end
 
-  test "ログインを押すとThreadsの認可画面へ送る" do
-    post threads_authorize_url
+  test "認可リンクに権限とstateが入っている" do
+    get threads_login_url
 
-    assert_response :redirect
-    assert_match "https://threads.com/oauth/authorize", response.location
-    assert_match "scope=threads_basic%2Cthreads_keyword_search", response.location
+    params = authorize_params
+    assert_equal "threads_basic,threads_keyword_search", params["scope"]
+    assert_equal "https://voc-1ntn.onrender.com/threads/callback", params["redirect_uri"]
+    assert params["state"].present?
   end
 
   test "stateが一致しないコールバックは受け付けない" do
@@ -140,10 +145,15 @@ class ThreadsControllerTest < ActionDispatch::IntegrationTest
 
   private
 
-  # 認可画面からコールバックまでを通して、セッションにトークンが入った状態を作る
+  # ログイン画面のリンクに入っているパラメータ
+  def authorize_params
+    href = css_select("a[href^='https://threads.com/oauth/authorize']").first["href"]
+    Rack::Utils.parse_query(URI.parse(href).query)
+  end
+
+  # ログイン画面からコールバックまでを通して、セッションにトークンが入った状態を作る
   def log_in
-    post threads_authorize_url
-    state = Rack::Utils.parse_query(URI.parse(response.location).query)["state"]
-    get threads_callback_url(code: "the-code", state: state)
+    get threads_login_url
+    get threads_callback_url(code: "the-code", state: authorize_params["state"])
   end
 end

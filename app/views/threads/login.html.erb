@@ -40,8 +40,9 @@
     <%= button_to "連携を解除する", threads_logout_path, method: :delete,
           class: "mt-4 text-sm text-gray-500 underline hover:text-gray-900" %>
   <% elsif @configured %>
-    <%= button_to "Threadsでログイン", threads_authorize_path,
-          class: "rounded-lg bg-gray-900 px-6 py-3 font-bold text-white hover:bg-gray-700" %>
+    <%# 外部ドメインへ飛ぶので、Turboに触らせないふつうのリンクにする %>
+    <%= link_to "Threadsでログイン", @authorize_url, data: { turbo: false },
+          class: "inline-block rounded-lg bg-gray-900 px-6 py-3 font-bold text-white hover:bg-gray-700" %>
   <% else %>
     <p class="rounded-lg bg-amber-50 p-4 text-sm leading-6 text-amber-900">
       環境変数 <code class="font-mono">THREADS_APP_ID</code> と <code class="font-mono">THREADS_APP_SECRET</code>

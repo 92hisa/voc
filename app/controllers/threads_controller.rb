@@ -5,21 +5,20 @@ class ThreadsController < ApplicationController
   before_action :require_token, only: :search
 
   # ① ログインの説明（ここから始める）
+  # Threadsの認可URLはこの画面で作って、ふつうのリンク（<a href>）で直接飛ぶ。
+  # フォーム送信にすると、Turboが外部ドメインへのリダイレクトを追えず無反応になる
   def login
     @configured = Sources::ThreadsSource.configured?
     @redirect_uri = Sources::ThreadsSource.redirect_uri
     @scopes = Sources::ThreadsSource::SCOPES
     @logged_in = access_token.present?
-  end
 
-  # ボタンを押したらThreadsの認可画面へ送る（state はCSRF対策）
-  def authorize
+    return unless @configured
+
+    # state はCSRF対策。この画面を開くたびに作り直し、コールバックで突き合わせる
     state = SecureRandom.hex(16)
     session[:threads_oauth_state] = state
-
-    redirect_to Sources::ThreadsSource.authorize_url(state: state), allow_other_host: true
-  rescue Sources::ThreadsSource::ConfigurationError => e
-    redirect_to threads_login_path, alert: e.message
+    @authorize_url = Sources::ThreadsSource.authorize_url(state: state)
   end
 
   # ② 認可画面から戻ってくる先。code を長期トークンに交換してセッションに持つ

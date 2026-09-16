@@ -16,7 +16,6 @@ Rails.application.routes.draw do
 
   # Threads連携（① ログイン → ② 認可 → ③ 検索語で一覧）。審査の録画はこの流れを見せる
   get "threads/login" => "threads#login", as: :threads_login
-  post "threads/authorize" => "threads#authorize", as: :threads_authorize
   get "threads/callback" => "threads#callback", as: :threads_callback
   get "threads/search" => "threads#search", as: :threads_search
   delete "threads/logout" => "threads#logout", as: :threads_logout
