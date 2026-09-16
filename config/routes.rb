@@ -14,6 +14,13 @@ Rails.application.routes.draw do
   get "terms" => "legal#terms", as: :terms
   get "data-deletion" => "legal#data_deletion", as: :data_deletion
 
+  # Threads連携（① ログイン → ② 認可 → ③ 検索語で一覧）。審査の録画はこの流れを見せる
+  get "threads/login" => "threads#login", as: :threads_login
+  post "threads/authorize" => "threads#authorize", as: :threads_authorize
+  get "threads/callback" => "threads#callback", as: :threads_callback
+  get "threads/search" => "threads#search", as: :threads_search
+  delete "threads/logout" => "threads#logout", as: :threads_logout
+
   # 診断LP（指示7）ができたら root は diagnosis#index に差し替える
   root "legal#home"
 end

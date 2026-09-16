@@ -1,0 +1,8 @@
+<%# このファイルは「いまどの段階か」を示す3ステップの見出し。審査の録画で流れが分かるように %>
+<ol class="mb-10 flex flex-wrap gap-3 text-sm">
+  <% [ [ 1, "Threadsでログイン" ], [ 2, "権限を許可" ], [ 3, "検索語で投稿を表示" ] ].each do |number, label| %>
+    <li class="rounded-full px-4 py-2 <%= number == current ? 'bg-gray-900 text-white' : 'bg-gray-100 text-gray-500' %>">
+      <%= number %>. <%= label %>
+    </li>
+  <% end %>
+</ol>

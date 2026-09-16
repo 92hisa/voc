@@ -89,6 +89,27 @@ bin/rails collect[web-seisaku,bluesky,7]  # 直近7日の投稿を集めて post
 検索は**書いた語を全部含む投稿しか返らない**ので、検索語は1〜2語にする（3語以上はほぼ0件）。
 逆に「サイト」のような広い1語はレシピサイト・同人サイトの話に当たるので、主題語は具体的にする。
 
+## Threads連携（審査用の最小画面）
+
+```
+① /threads/login   説明と「Threadsでログイン」ボタン
+② Threadsの認可画面 → /threads/callback（stateを確認し、長期トークン60日に交換）
+③ /threads/search  オーディエンスの検索語で直近7日の公開投稿を一覧表示
+```
+
+`app/services/sources/threads_source.rb` がThreadsを触る唯一のファイル。
+OAuth（認可URL作成・トークン交換）と `keyword_search` の呼び出しが入っている。
+
+- 求める権限は `threads_basic` と `threads_keyword_search` の2つだけ
+- 取得する項目は `id,text,timestamp,permalink,media_type`。**`username` は取らない**
+- トークンはセッションに置くだけでDBに保存しない。`/threads/search` の「連携を解除する」で捨てられる
+- この画面は取得の確認用で、**postsへの保存はしない**（保存は審査通過後に足す）
+
+必要な環境変数は `THREADS_APP_ID` / `THREADS_APP_SECRET` / `THREADS_REDIRECT_URI`。
+リダイレクトURIはMetaの設定と1文字でも違うと弾かれる（既定値 `https://voc.onrender.com/threads/callback`）。
+
+検索語は `bin/rails queries:generate[,threads]` で作る（媒体ごとに方針が違う。Threadsは1〜2語）。
+
 ## データベース
 
 SQLite。開発用のファイルは `storage/development.sqlite3`。
@@ -132,7 +153,7 @@ Threads（Meta）のアプリ審査で提出するURL。文面は `app/views/leg
 | `SOLID_QUEUE_IN_PUMA` | Puma内でジョブも動かす | `render.yaml` に記載（`true`） |
 | `ANTHROPIC_API_KEY` / `AI_MODEL` | 分類・検索語生成 | Renderの画面で入力 |
 | `OPERATOR_NAME` / `CONTACT_EMAIL` | 規約ページの運営者表示 | Renderの画面で入力 |
-| `THREADS_APP_ID` / `THREADS_APP_SECRET` | Threads OAuth（審査後） | Renderの画面で入力 |
+| `THREADS_APP_ID` / `THREADS_APP_SECRET` / `THREADS_REDIRECT_URI` | Threads OAuth | Renderの画面で入力 |
 | `RESEND_API_KEY` / `MAIL_FROM` / `APP_HOST` | メール配信 | Renderの画面で入力 |
 | `GA4_ID` / `META_PIXEL_ID` | 計測 | Renderの画面で入力 |
 | `YOUTUBE_API_KEY` | YouTube収集（**現在停止中**） | 再開するときに入力 |
@@ -160,7 +181,6 @@ YouTube・Blueskyでは「事業者の悩み」が集まらなかったので、
 
 1. ✅ Renderデプロイの設定（`render.yaml`）
 2. ✅ 規約系3ページ（`/privacy` `/terms` `/data-deletion`）
-3. Threads OAuthでログインして検索語で投稿を一覧表示する最小画面
-   （`/threads/login` → `/threads/search`。Metaアプリの作成後に着手）
-4. `app/services/sources/threads_source.rb`
+3. ✅ Threads OAuthの最小画面（`/threads/login` → `/threads/search`）と `threads_source.rb` の土台
+4. Threadsのアプリ審査（`threads_keyword_search` の許可）→ 通ったら収集（postsへの保存）を足す
 5. AI分類 → クラスタ化・週次集計 → 診断LP → 週次メール（`CLAUDE.md` 第9節の指示5〜8）

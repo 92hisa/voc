@@ -42,21 +42,30 @@ class LegalControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "運営者名と連絡先は環境変数から出す" do
-    ENV["OPERATOR_NAME"] = "テスト運営者"
-    ENV["CONTACT_EMAIL"] = "test@example.com"
-
-    get privacy_url
+    with_env("OPERATOR_NAME" => "テスト運営者", "CONTACT_EMAIL" => "test@example.com") do
+      get privacy_url
+    end
 
     assert_match "テスト運営者", response.body
     assert_select "a[href=?]", "mailto:test@example.com?subject=%E3%83%97%E3%83%A9%E3%82%A4%E3%83%90%E3%82%B7%E3%83%BC%E3%83%9D%E3%83%AA%E3%82%B7%E3%83%BC%E3%81%AB%E3%81%A4%E3%81%84%E3%81%A6"
-  ensure
-    ENV.delete("OPERATOR_NAME")
-    ENV.delete("CONTACT_EMAIL")
   end
 
   test "運営者名が未設定なら設定を促す文字を出す" do
-    get terms_url
+    with_env("OPERATOR_NAME" => nil, "CONTACT_EMAIL" => nil) do
+      get terms_url
+    end
 
     assert_match "OPERATOR_NAME を設定してください", response.body
+  end
+
+  private
+
+  # 環境変数を一時的に差し替える（開発者の .env の値でテストが揺れないように）
+  def with_env(values)
+    original = values.keys.to_h { |key| [ key, ENV[key] ] }
+    values.each { |key, value| value.nil? ? ENV.delete(key) : ENV[key] = value }
+    yield
+  ensure
+    original.each { |key, value| value.nil? ? ENV.delete(key) : ENV[key] = value }
   end
 end

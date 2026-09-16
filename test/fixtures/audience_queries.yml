@@ -18,3 +18,10 @@ ec_youtube:
   query: ネットショップ 売れない
   is_active: false
   generated_by: ai
+
+web_threads:
+  audience: web_seisaku
+  source: threads
+  query: ホームページ 作りたい
+  is_active: true
+  generated_by: ai
