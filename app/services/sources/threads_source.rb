@@ -15,7 +15,7 @@ module Sources
     # 取得する項目。username（投稿者名）は取らない
     FIELDS = %w[id text timestamp permalink media_type].freeze
 
-    DEFAULT_REDIRECT_URI = "https://voc.onrender.com/threads/callback".freeze
+    DEFAULT_REDIRECT_URI = "https://voc-1ntn.onrender.com/threads/callback".freeze
     DEFAULT_LIMIT = 25
     MAX_LIMIT = 100
 

@@ -5,7 +5,7 @@ class Sources::ThreadsSourceTest < ActiveSupport::TestCase
   setup do
     ENV["THREADS_APP_ID"] = "1234567890"
     ENV["THREADS_APP_SECRET"] = "test-secret"
-    ENV["THREADS_REDIRECT_URI"] = "https://voc.onrender.com/threads/callback"
+    ENV["THREADS_REDIRECT_URI"] = "https://voc-1ntn.onrender.com/threads/callback"
   end
 
   teardown do
@@ -35,7 +35,7 @@ class Sources::ThreadsSourceTest < ActiveSupport::TestCase
     assert url.start_with?("https://threads.com/oauth/authorize?")
     params = Rack::Utils.parse_query(URI.parse(url).query)
     assert_equal "1234567890", params["client_id"]
-    assert_equal "https://voc.onrender.com/threads/callback", params["redirect_uri"]
+    assert_equal "https://voc-1ntn.onrender.com/threads/callback", params["redirect_uri"]
     assert_equal "code", params["response_type"]
     assert_equal "abc123", params["state"]
     # 求める権限は必要最小限の2つだけ

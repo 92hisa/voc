@@ -48,7 +48,7 @@ class ThreadsControllerTest < ActionDispatch::IntegrationTest
   setup do
     ENV["THREADS_APP_ID"] = "1234567890"
     ENV["THREADS_APP_SECRET"] = "test-secret"
-    ENV["THREADS_REDIRECT_URI"] = "https://voc.onrender.com/threads/callback"
+    ENV["THREADS_REDIRECT_URI"] = "https://voc-1ntn.onrender.com/threads/callback"
   end
 
   teardown do
@@ -65,7 +65,7 @@ class ThreadsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select "h1", "Threadsと連携する"
     assert_match "threads_keyword_search", response.body
-    assert_match "https://voc.onrender.com/threads/callback", response.body
+    assert_match "https://voc-1ntn.onrender.com/threads/callback", response.body
     assert_select "form[action=?]", threads_authorize_path
   end
 

@@ -106,7 +106,7 @@ OAuth（認可URL作成・トークン交換）と `keyword_search` の呼び出
 - この画面は取得の確認用で、**postsへの保存はしない**（保存は審査通過後に足す）
 
 必要な環境変数は `THREADS_APP_ID` / `THREADS_APP_SECRET` / `THREADS_REDIRECT_URI`。
-リダイレクトURIはMetaの設定と1文字でも違うと弾かれる（既定値 `https://voc.onrender.com/threads/callback`）。
+リダイレクトURIはMetaの設定と1文字でも違うと弾かれる（既定値 `https://voc-1ntn.onrender.com/threads/callback`）。
 
 検索語は `bin/rails queries:generate[,threads]` で作る（媒体ごとに方針が違う。Threadsは1〜2語）。
 
@@ -169,6 +169,8 @@ Threads（Meta）のアプリ審査で提出するURL。文面は `app/views/leg
 - ビルド時に `assets:precompile`（Tailwindのビルドを含む）、デプロイ前に `db:prepare` を実行
 - ヘルスチェックは `/up`、GitHubの main への push で自動デプロイ
 - `sync: false` のキーはRenderの画面で入れる（このファイルには秘密情報を書かない）
+- 公開URLは **https://voc-1ntn.onrender.com** 。`render.yaml` の `name: voc` はサービス名で、
+  URLの接尾辞（`-1ntn`）はRenderがホスト名に付けたもの。**名前を変えるとサービスが作り直しになるので触らない**
 
 ## ジョブ（Solid Queue）
 
